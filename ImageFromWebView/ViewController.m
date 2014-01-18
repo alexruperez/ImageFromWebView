@@ -33,13 +33,15 @@
 
 -(BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
     
-    if ([gestureRecognizer isKindOfClass:[UITapGestureRecognizer class]]) {
-        
+    if ([gestureRecognizer isKindOfClass:[UITapGestureRecognizer class]])
+    {
         CGPoint touchPoint = [touch locationInView:self.view];
         
-        if (touchPoint.y <= (self.webView.frame.origin.y + self.webView.frame.size.height)) {
+        if (touchPoint.y <= (self.webView.frame.origin.y + self.webView.frame.size.height))
+        {
             
-            if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0) {
+            if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0)
+            {
                 touchPoint.y -= 20.0f;
             }
             
@@ -47,10 +49,13 @@
             NSString *urlToSave = [self.webView stringByEvaluatingJavaScriptFromString:imageURLString];
             NSURL * imageURL = [NSURL URLWithString:urlToSave];
             NSData * imageData = [NSData dataWithContentsOfURL:imageURL];
-            self.image = [UIImage imageWithData:imageData];
+            self.image = imageData ? [UIImage imageWithData:imageData] : nil;
             
-            UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Save", nil];
-            [actionSheet showInView:self.view];
+            
+            if (self.image)
+            {
+                [[[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Save", nil] showInView:self.view];
+            }
             
             return NO;
             
@@ -62,16 +67,20 @@
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-    if (!buttonIndex) {
+    if (!buttonIndex)
+    {
         UIImageWriteToSavedPhotosAlbum(self.image, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
     }
 }
 
 - (void) image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo {
     
-    if (!error) {
+    if (!error)
+    {
         [[[UIAlertView alloc] initWithTitle:@"Saved!" message:@"Image saved in your photo album." delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil] show];
-    } else {
+    }
+    else
+    {
         [[[UIAlertView alloc] initWithTitle:@"Error!" message:@"I need access to your gallery." delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil] show];
     }
     
