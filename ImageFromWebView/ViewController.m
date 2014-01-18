@@ -8,6 +8,12 @@
 
 #import "ViewController.h"
 
+@interface ViewController ()
+
+@property (strong, nonatomic) UIImage *image;
+
+@end
+
 @implementation ViewController
 
 #pragma mark - View lifecycle
@@ -41,19 +47,24 @@
             NSString *urlToSave = [self.webView stringByEvaluatingJavaScriptFromString:imageURLString];
             NSURL * imageURL = [NSURL URLWithString:urlToSave];
             NSData * imageData = [NSData dataWithContentsOfURL:imageURL];
-            UIImage * image = [UIImage imageWithData:imageData];
-            self.imageView.image = image;
+            self.image = [UIImage imageWithData:imageData];
+            
+            UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Save", nil];
+            [actionSheet showInView:self.view];
             
             return NO;
-            
-        } else if (self.imageView.image) {
-            
-            UIImageWriteToSavedPhotosAlbum(self.imageView.image, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
             
         }
     }
     
     return YES;
+}
+
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (!buttonIndex) {
+        UIImageWriteToSavedPhotosAlbum(self.image, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
+    }
 }
 
 - (void) image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo {

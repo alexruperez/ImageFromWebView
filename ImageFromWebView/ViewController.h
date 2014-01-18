@@ -8,9 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController <UIGestureRecognizerDelegate>
+@interface ViewController : UIViewController <UIGestureRecognizerDelegate, UIActionSheetDelegate>
 
 @property (strong, nonatomic) IBOutlet UIWebView *webView;
-@property (strong, nonatomic) IBOutlet UIImageView *imageView;
 
 @end
