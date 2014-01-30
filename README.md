@@ -6,6 +6,8 @@
 
 Captures an image of a UIWebView, makes an UIImage, shows on an UIImageView and saves it into the gallery.
 
+Check out the [Action Sheet](https://github.com/alexruperez/ImageFromWebView/tree/action_sheet) branch!
+
 # Etc.
 
 * Contributions are very welcome.
