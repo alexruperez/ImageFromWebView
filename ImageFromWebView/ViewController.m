@@ -11,7 +11,6 @@
 @interface ViewController ()
 
 @property (strong, nonatomic) UIImage *image;
-@property (strong, nonatomic) UILongPressGestureRecognizer *longPressGesture;
 
 @end
 
@@ -26,31 +25,10 @@
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     [self.webView loadRequest:request];
 
-    // REMOVE UIWEBVIEW LONG PRESS DEFAULT ACTION
-    for (UIView *subview1 in self.webView.subviews)
-    {
-        for (UIView *subview2 in subview1.subviews)
-        {
-            NSMutableArray *gestureRecognizers = [[NSMutableArray alloc] initWithArray:subview2.gestureRecognizers];
-
-            for (UIGestureRecognizer *gestureRecognizer in subview2.gestureRecognizers)
-            {
-                if ([gestureRecognizer isKindOfClass:NSClassFromString(@"_UIWebHighlightLongPressGestureRecognizer")])
-                {
-                    [gestureRecognizers removeObject:gestureRecognizer];
-                }
-            }
-
-            [subview2 setGestureRecognizers:gestureRecognizers];
-
-        }
-    }
-
-    // ADD CUSTOM LONG PRESS ACTION
-    self.longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
-    [self.longPressGesture setMinimumPressDuration:0.5f];
-    [self.longPressGesture setDelegate:self];
-    [self.view addGestureRecognizer:self.longPressGesture];
+    UILongPressGestureRecognizer *longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
+    [longPressGesture setMinimumPressDuration:0.5f];
+    [longPressGesture setDelegate:self];
+    [self.view addGestureRecognizer:longPressGesture];
 }
 
 - (void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer
@@ -88,6 +66,11 @@
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
     return YES;
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView
+{
+    [webView stringByEvaluatingJavaScriptFromString:@"document.body.style.webkitTouchCallout='none'; document.body.style.KhtmlUserSelect='none';"];
 }
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
