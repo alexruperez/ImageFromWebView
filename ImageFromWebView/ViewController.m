@@ -11,6 +11,7 @@
 @interface ViewController ()
 
 @property (strong, nonatomic) UIImage *image;
+@property (strong, nonatomic) UILongPressGestureRecognizer *longPressGesture;
 
 @end
 
@@ -24,18 +25,40 @@
     NSURL *url = [NSURL URLWithString:@"http://www.google.com/search?tbm=isch&q=alexruperez"];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     [self.webView loadRequest:request];
-    
-    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] init];
-    [tapGestureRecognizer setNumberOfTapsRequired:1];
-    [tapGestureRecognizer setDelegate:self];
-    [self.view addGestureRecognizer:tapGestureRecognizer];
+
+    // REMOVE UIWEBVIEW LONG PRESS DEFAULT ACTION
+    for (UIView *subview1 in self.webView.subviews)
+    {
+        for (UIView *subview2 in subview1.subviews)
+        {
+            NSMutableArray *gestureRecognizers = [[NSMutableArray alloc] initWithArray:subview2.gestureRecognizers];
+
+            for (UIGestureRecognizer *gestureRecognizer in subview2.gestureRecognizers)
+            {
+                if ([gestureRecognizer isKindOfClass:NSClassFromString(@"_UIWebHighlightLongPressGestureRecognizer")])
+                {
+                    [gestureRecognizers removeObject:gestureRecognizer];
+                }
+            }
+
+            [subview2 setGestureRecognizers:gestureRecognizers];
+
+        }
+    }
+
+    // ADD CUSTOM LONG PRESS ACTION
+    self.longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
+    [self.longPressGesture setMinimumPressDuration:0.5f];
+    [self.longPressGesture setDelegate:self];
+    [self.view addGestureRecognizer:self.longPressGesture];
 }
 
--(BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
-    
-    if ([gestureRecognizer isKindOfClass:[UITapGestureRecognizer class]])
+- (void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer
+{
+    if (gestureRecognizer.state == UIGestureRecognizerStateBegan)
     {
-        CGPoint touchPoint = [touch locationInView:self.view];
+
+        CGPoint touchPoint = [gestureRecognizer locationInView:self.view];
         
         if (touchPoint.y <= (self.webView.frame.origin.y + self.webView.frame.size.height))
         {
@@ -51,17 +74,19 @@
             NSData * imageData = [NSData dataWithContentsOfURL:imageURL];
             self.image = imageData ? [UIImage imageWithData:imageData] : nil;
             
-            
             if (self.image)
             {
                 [[[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Save", nil] showInView:self.view];
             }
-            
-            return NO;
-            
+
         }
+
     }
-    
+
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
     return YES;
 }
 
